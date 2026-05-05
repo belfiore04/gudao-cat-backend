@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class PostCreate(BaseModel):
     content: str
+    cat_id: int | None = None
     images: list[str] | None = None
     video: str | None = None
 
@@ -12,6 +13,7 @@ class PostCreate(BaseModel):
 class PostOut(BaseModel):
     id: int
     user_id: int
+    cat_id: int | None = None
     content: str
     images: list | None = None
     video: str | None = None

@@ -11,6 +11,7 @@ class Post(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    cat_id: Mapped[int | None] = mapped_column(ForeignKey("cats.id"), nullable=True)
     content: Mapped[str] = mapped_column(Text)
     images: Mapped[list | None] = mapped_column(JSON, default=list)
     video: Mapped[str | None] = mapped_column(String(500))
@@ -18,4 +19,5 @@ class Post(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     author: Mapped["User"] = relationship(back_populates="posts")
+    cat: Mapped["Cat | None"] = relationship()
     comments: Mapped[list["Comment"]] = relationship(back_populates="post")

@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.cat import Cat
 from app.models.comment import Comment
+from app.models.like import Like
 from app.models.post import Post
 from app.models.user import User
 from app.schemas.post import CommentCreate, CommentOut, PostCreate, PostOut
@@ -22,14 +24,46 @@ def create_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if data.cat_id is not None:
+        cat = db.query(Cat).filter(Cat.id == data.cat_id).first()
+        if cat is None:
+            raise HTTPException(status_code=404, detail="关联猫咪不存在")
     post = Post(
         user_id=current_user.id,
+        cat_id=data.cat_id,
         content=data.content,
         images=data.images or [],
         video=data.video,
         like_count=0,
     )
     db.add(post)
+    db.commit()
+    db.refresh(post)
+    return post
+
+
+@router.post("/{post_id}/like", response_model=PostOut)
+def toggle_like(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if post is None:
+        raise HTTPException(status_code=404, detail="帖子不存在")
+
+    existing = (
+        db.query(Like)
+        .filter(Like.post_id == post_id, Like.user_id == current_user.id)
+        .first()
+    )
+    if existing is None:
+        db.add(Like(post_id=post_id, user_id=current_user.id))
+        post.like_count = (post.like_count or 0) + 1
+    else:
+        db.delete(existing)
+        post.like_count = max((post.like_count or 0) - 1, 0)
+
     db.commit()
     db.refresh(post)
     return post
