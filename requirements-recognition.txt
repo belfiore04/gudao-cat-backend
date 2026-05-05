@@ -1,0 +1,8 @@
+# Optional dependencies for running the hachimi recognition pipeline inside the backend.
+# Install these after the normal requirements, then install GroundingDINO and
+# segment-anything from the directories configured by HACHIMI_ROOT.
+numpy
+pillow
+opencv-python
+torch
+torchvision

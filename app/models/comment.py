@@ -16,3 +16,4 @@ class Comment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     post: Mapped["Post"] = relationship(back_populates="comments")
+    author: Mapped["User"] = relationship()
