@@ -6,3 +6,4 @@ pillow
 opencv-python
 torch
 torchvision
+transformers==4.30.2
